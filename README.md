@@ -51,13 +51,9 @@ If any link fails, check your engine's agent-to-agent communication config (see 
 
 ### 3. Start Analyzing
 
-Create a project directory, then tell Jarvis-Arch your analysis target:
+Point Jarvis-Arch to a source code project (an existing local clone or a GitHub repo URL):
 
-```bash
-mkdir ~/projects/my-analysis
-```
-
-> "Analyze the USB initialization subsystem. Code is at ~/projects/my-analysis. Start with reconnaissance."
+> "Analyze the USB initialization subsystem in ~/src/u-boot/. Start with reconnaissance."
 
 Jarvis-Arch will handle the rest (Phase 1 - Reconnaissance):
 1. Align the analysis scope with you through conversation
