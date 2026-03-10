@@ -49,28 +49,29 @@ Expected result:
 
 If any link fails, check your engine's agent-to-agent communication config (see `configs/openclaw-example.yaml`).
 
-### 3. Initialize a Project Workspace
+### 3. Start Analyzing
+
+Create a project directory, then tell Jarvis-Arch your analysis target:
 
 ```bash
-mkdir my-analysis && cd my-analysis
-cp -r /path/to/this/repo/templates/blackboard/ .blackboard/
-cp /path/to/this/repo/templates/PROJECT.md ./PROJECT.md
-# Edit PROJECT.md: fill in repo URL, commit hash, module plan
+mkdir ~/projects/my-analysis
 ```
 
-### 4. Start Analyzing
+> "Analyze the USB initialization subsystem. Code is at ~/projects/my-analysis. Start with reconnaissance."
 
-Tell Jarvis-Arch your analysis target:
+Jarvis-Arch will handle the rest (Phase 1 - Reconnaissance):
+1. Align the analysis scope with you through conversation
+2. Initialize the workspace using templates (`PROJECT.md`, `.blackboard/`, etc.)
+3. Scout the codebase, produce `PROJECT.md` + `SYMBOL_INDEX.md`
+4. Submit the plan to Reviewer, then ask you for sign-off
 
-> "Analyze the DDR initialization subsystem in the K1 U-Boot codebase. Start with a reconnaissance of the directory structure and produce a module split plan."
+After sign-off, Phase 2 begins automatically:
+5. Dispatch modules to Researcher, trigger Reviewer for verification
+6. Integrate results into `knowledge-map.md`
 
-Jarvis-Arch will:
-1. Align the analysis scope with you
-2. Scout the codebase, produce `PROJECT.md` + `SYMBOL_INDEX.md`
-3. Dispatch modules to Researcher, trigger Reviewer for verification
-4. Integrate results into `knowledge-map.md`
+> **Tip**: Templates in `templates/` are reference copies. You can also manually initialize a workspace with `cp -r templates/blackboard/ .blackboard/` if you prefer hands-on setup.
 
-### 5. See It in Action
+### 4. See It in Action
 
 Check `example_workspace/` for a completed micro-demo - a 3-file C project with function pointers, `#ifdef` branches, and `__weak` overrides, fully analyzed by the agent team.
 
