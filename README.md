@@ -91,7 +91,7 @@ source-driven-agent-framework/
 
 ## 💡 Experience Accumulation
 
-"Permanent team, rotating projects." When a project wraps up, don't delete the agents. Append lessons learned to each agent's `== Learned Rules ==` section in their SOUL.md. Your team gets sharper with every project.
+"Permanent team, rotating projects." When a project wraps up, don't delete the agents. Append lessons learned to each agent's `MEMORY.md` (SOUL.md is read-only - only the human owner modifies it). Your team gets sharper with every project.
 
 ## Three-Phase Workflow
 
