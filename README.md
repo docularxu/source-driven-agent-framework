@@ -69,7 +69,9 @@ After sign-off, Phase 2 begins automatically:
 
 ### 4. See It in Action
 
-Check `example_workspace/` for a completed micro-demo - a 3-file C project with function pointers, `#ifdef` branches, and `__weak` overrides, fully analyzed by the agent team.
+`example_workspace/dummy-c-project/` contains a 3-file C project with deliberate traps (function pointer dispatch, macro obfuscation, dead code). Point your agents at it and run the full workflow.
+
+After your agents finish, compare your results against `example_output/dummy-c-project/` - the reference output from a real live-fire exercise.
 
 ## 📁 Repository Structure
 
@@ -95,10 +97,11 @@ source-driven-agent-framework/
 │       └── NN-module-name.md
 ├── docs/
 │   └── design-architecture.html  # Full design document (interactive)
-└── example_workspace/          # Completed micro-demo
-    ├── dummy-c-project/        # 3 C files with implicit jumps
-    ├── .blackboard/            # Final blackboard state
-    └── analysis/               # Generated analysis reports
+├── example_workspace/          # Test target (clean, no analysis output)
+│   └── dummy-c-project/        # 3 C files with deliberate traps
+└── example_output/             # Reference output from live-fire exercise
+    └── dummy-c-project/
+        └── .blackboard/        # PROJECT.md, SYMBOL_INDEX.md, analysis reports, etc.
 ```
 
 ## 💡 Experience Accumulation
