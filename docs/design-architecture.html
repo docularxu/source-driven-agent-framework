@@ -384,7 +384,10 @@ graph TD
     - <b>开放问题</b>：跨模块的未解之谜、需要后续模块分析才能回答的问题<br>
     - <b>术语表</b>：项目特有的缩写、命名约定<br><br>
     Jarvis-Arch 在每个模块分析通过后更新知识图谱。<br>
-    Researcher 在开始新模块分析前必须先读知识图谱，获取前序模块的上下文。
+    Researcher 在开始新模块分析前必须先读知识图谱，获取前序模块的上下文。<br><br>
+    <b>⚠️ 大型项目扩展：分级地图</b><br>
+    当项目极大（如 Linux Kernel 成百上千个驱动）时，单一 knowledge-map.md 会膨胀到十几万字，导致 Token 爆炸和 Agent 抓错重点。<br>
+    扩展方案：维持一个极其精简的 <code>global-map.md</code>（只记录子系统级别的调用），在 <code>.blackboard/subsystem-maps/</code> 下按业务域拆分（如 <code>usb-map.md</code>、<code>memory-map.md</code>）。V1.0 暂不实现，留作未来扩展。
   </div>
 </div>
 
@@ -570,7 +573,11 @@ sequenceDiagram
     - Jarvis-Arch 自动将所有引用该结论的模块标记为 <code>[Needs Re-evaluation]</code><br>
     - 在 tasks-backlog.md 中为这些模块创建重审任务（优先级高于新模块分析）<br>
     - 重审范围：仅限受影响的结论链，不需要全部重做<br>
-    - 通知 Guodong 级联影响范围
+    - 通知 Guodong 级联影响范围<br><br>
+
+    <b>🔒 防循环重审死锁 (Anti-Deadlock)：</b><br>
+    C 代码中模块间常存在循环依赖（如：中断模块 A 依赖电源模块 B，B 的异常处理又回调 A）。级联刷新可能导致 A→B→A 的无限 Ping-Pong。<br>
+    规则：当检测到同一模块被重审超过 2 次，强制将状态锁定为 <code>[Escalated]</code> 并中止流转，交由 Guodong 进行人工架构仲裁。可选方案：将两个循环依赖的模块合并为一个联合分析任务。
   </div>
 </div>
 
@@ -612,12 +619,12 @@ sequenceDiagram
 </table>
 
 <div class="decision">
-  <div class="decision-title">SOUL.md 分区管理（同开发框架）</div>
+  <div class="decision-title">SOUL.md 与 MEMORY.md 权责分离</div>
   <div class="decision-body">
-    - <b>Core Principles</b>：稳定，定义角色本质<br>
-    - <b>Learned Rules</b>：从复盘中积累，Jarvis-Arch 维护<br>
-    - Researcher 和 Reviewer 永远不改自己的 SOUL.md，只向 Jarvis-Arch 提建议<br>
-    - 小改 Jarvis-Arch 直接改，大改 Guodong 审批（同开发框架 §4.1 标准）
+    <b>SOUL.md 是只读的</b>：只有 Guodong 能修改。任何 Agent（包括 Jarvis-Arch）禁止修改任何人的 SOUL.md。让 LLM 修改自己的系统提示词是危险的，容易写坏格式或引入偏差。<br><br>
+    <b>MEMORY.md 是经验外挂</b>：每次项目复盘产生的教训，由 Jarvis-Arch 写入对应 Agent 目录下的 <code>MEMORY.md</code>。<br><br>
+    <b>启动时必须读 MEMORY.md</b>：每个 Agent 在开始任何任务前，必须先读取自己目录下的 <code>MEMORY.md</code> 中的历史教训。<br><br>
+    如果某条经验足够重要需要写入 SOUL.md，向 Guodong 提议，由他审批后修改。
   </div>
 </div>
 
@@ -663,7 +670,7 @@ sequenceDiagram
     <b>切换项目上下文（流水的项目）：</b><br>
     下次有新代码库需要分析时，只需创建新项目文件夹（如 <code>~/projects/new-project/</code>），初始化新的 PROJECT.md。直接对 Jarvis-Arch 说"接新活了"，原班人马走到新项目的黑板前开工。<br><br>
     <b>💡 终极红利：经验累积 (Evolution)</b><br>
-    将每个项目复盘得到的教训（例如特定厂家的宏混淆规律、Reviewer 容易漏看的陷阱），补充到对应 Agent SOUL.md 底部的 <code>== Learned Rules ==</code> 中。<br>
+    将每个项目复盘得到的教训（例如特定厂家的宏混淆规律、Reviewer 容易漏看的陷阱），补充到对应 Agent SOUL.md 底部的 <code>== 启动检查清单 ==</code> 中。<br>
     Agent 团队会随着分析项目的增多<b>跨项目沉淀"肌肉记忆"</b>，变得越来越刁钻和老练。
   </div>
 </div>
@@ -731,6 +738,21 @@ sequenceDiagram
   <div class="decision-body">已确认结论必须记录被哪些下游模块引用。结论被修正时，Jarvis-Arch 自动将依赖模块标记为 [Needs Re-evaluation]，触发局部重审。防止污染数据级联扩散。</div>
 </div>
 
+<div class="decision">
+  <div class="decision-title">D13: 防循环重审死锁（对抗模块循环依赖）</div>
+  <div class="decision-body">模块间循环依赖可能导致级联刷新无限 Ping-Pong。同一模块被重审超过 2 次时，强制锁定为 [Escalated]，交由 Guodong 仲裁或合并为联合分析任务。</div>
+</div>
+
+<div class="decision">
+  <div class="decision-title">D14: SOUL.md 只读，经验写入 MEMORY.md</div>
+  <div class="decision-body">SOUL.md 是角色本质定义，只有 Guodong 能修改。复盘产生的经验教训由 Jarvis-Arch 写入各 Agent 的 MEMORY.md。Agent 启动时必须先读 MEMORY.md。避免 LLM 修改自己的系统提示词。</div>
+</div>
+
+<div class="decision">
+  <div class="decision-title">D15: 大型项目知识图谱分级（未来扩展）</div>
+  <div class="decision-body">当项目规模极大时，单一 knowledge-map.md 会 Token 爆炸。扩展方案：精简 global-map.md + 按业务域拆分 subsystem-maps/。V1.0 暂不实现。</div>
+</div>
+
 <!-- ==================== 11. Agent 人格定义与 TODO ==================== -->
 <h2>11. Agent 人格定义 (SOUL.md Templates)</h2>
 
@@ -764,8 +786,8 @@ sequenceDiagram
     - 禁止修改前序模块的分析文档（报告给 Jarvis-Arch）<br>
     - 禁止修改 PROJECT.md、knowledge-map.md 或 SYMBOL_INDEX.md<br>
     - 禁止自己修改 SOUL.md<br><br>
-    <b>== Learned Rules ==</b><br>
-    <span style="color:#484f58">（初始为空，从复盘中积累）</span>
+    <b>== 启动检查清单 ==</b><br>
+    <span style="color:#484f58">启动时必须先读取 MEMORY.md 中的历史教训。SOUL.md 是只读的，只有 Guodong 能修改。</span>
   </div>
 </div>
 
@@ -805,8 +827,8 @@ sequenceDiagram
     - 禁止不写 review.md 就说通过/打回<br>
     - 禁止放行任何带"逻辑断层"或"幻觉引用"的报告<br>
     - 禁止修改分析文档、knowledge-map.md 或 SOUL.md<br><br>
-    <b>== Learned Rules ==</b><br>
-    <span style="color:#484f58">（初始为空，从复盘中积累）</span>
+    <b>== 启动检查清单 ==</b><br>
+    <span style="color:#484f58">启动时必须先读取 MEMORY.md 中的历史教训。SOUL.md 是只读的，只有 Guodong 能修改。</span>
   </div>
 </div>
 
@@ -834,16 +856,16 @@ sequenceDiagram
     - 禁止盲目覆盖旧结论（必须走冲突熔断）<br>
     - 禁止自己做深度代码分析（那是 Researcher 的事）<br>
     - 禁止自己修改 SOUL.md<br><br>
-    <b>== Learned Rules ==</b><br>
-    <span style="color:#484f58">（初始为空，从复盘中积累）</span>
+    <b>== 启动检查清单 ==</b><br>
+    <span style="color:#484f58">启动时必须先读取 MEMORY.md 中的历史教训。SOUL.md 是只读的，只有 Guodong 能修改。</span>
   </div>
 </div>
 
 <h3>11.4 待办清单</h3>
 <p class="note">
-  ☐ 根据 11.1 写 Researcher 的 SOUL.md<br>
-  ☐ 根据 11.2 写 Reviewer 的 SOUL.md<br>
-  ☐ 根据 11.3 写 Jarvis-Arch 的 SOUL.md<br>
+  ☑ 根据 11.1 写 Researcher 的 SOUL.md（已完成 agents/researcher/SOUL.md）<br>
+  ☑ 根据 11.2 写 Reviewer 的 SOUL.md（已完成 agents/reviewer/SOUL.md）<br>
+  ☑ 根据 11.3 写 Jarvis-Arch 的 SOUL.md（已完成 agents/jarvis-arch/SOUL.md）<br>
   ☐ 配置 OpenClaw agent 注册（含工具权限：Researcher 只读、Reviewer CLI 执行、Jarvis-Arch 编排+读写黑板）<br>
   ☐ 生成 SYMBOL_INDEX.md（ctags/cscope）<br>
   ☐ 实际跑一个小模块验证完整流程<br>

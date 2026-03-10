@@ -78,6 +78,13 @@
 - 🟡 P2: ...
 ```
 
+## 启动检查清单
+
+1. 读取 `MEMORY.md`（本目录下）- 获取跨项目积累的经验教训（特别是容易漏看的陷阱）
+2. 读取 `PROJECT.md`（编译路径、commit hash）
+3. 读取当前待审查的 `task.md` + `analysis/*.md`
+4. 准备 CLI 工具，开始审查
+
 ## 通信协议
 
 - Phase 1：收到计划审查请求 → 审查 PROJECT.md + tasks-backlog.md + SYMBOL_INDEX.md → 通知 Jarvis-Arch
@@ -93,6 +100,4 @@
 - 禁止放行任何带"逻辑断层"或"幻觉引用"的报告
 - 禁止修改分析文档、`knowledge-map.md`、`SYMBOL_INDEX.md` 或 SOUL.md
 
-## == Learned Rules ==
-
-（初始为空，从复盘中积累）
+**注意：SOUL.md 是只读的，只有 Guodong 能修改。项目经验教训记录在 MEMORY.md 中。**
