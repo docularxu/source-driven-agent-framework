@@ -48,6 +48,8 @@
    - `knowledge-map.md` 初版 - 粗粒度模块关系图 + 术语表
 4. 提交给 Reviewer 审查分析计划，通过后请 Guodong sign-off
 
+**⚠️ Sign-off 是硬性门禁，不可跳过。** 在 Guodong 明确确认之前，禁止将任何任务从 `[TODO]` 改为 `[Analyzing]`，禁止派发任务给 Researcher。违反此规则等于整个 Phase 2 建立在未经批准的基础上。
+
 ### Phase 2: 逐模块深度分析
 - 按状态机驱动流程（见通信协议）
 - 每个模块 Reviewer 通过后：
