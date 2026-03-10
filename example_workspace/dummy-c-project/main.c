@@ -1,42 +1,21 @@
-/*
- * Minimal DDR initialization example
- * Demonstrates: function pointers, #ifdef branches, __weak overrides
- */
-#include "ddr.h"
+#include <stdio.h>
+#include "driver_api.h"
 
-/* Global DDR configuration - shared across modules */
-struct ddr_config g_ddr_cfg;
+// 外部引用的具体驱动 ops 结构体
+extern struct driver_ops usb_ops;
 
-int main(void)
-{
-    struct ddr_ops *ops;
+int main() {
+    printf("System Booting...\n");
 
-    /* Phase 1: Get platform-specific ops */
-    ops = get_ddr_ops();
-    if (!ops || !ops->init || !ops->train) {
-        return -1;
+    // 陷阱 1：这里发生了一次隐性跳转，没有直接调用 usb_init()
+    // 测试 Researcher 能否顺藤摸瓜找到 usb_driver.c 中的真身
+    int ret = usb_ops.init();
+
+    if (ret == 0) {
+        printf("Boot successful.\n");
+    } else {
+        printf("Boot failed.\n");
     }
 
-    /* Phase 2: Initialize DDR controller */
-    g_ddr_cfg.frequency = DDR_FREQ_DEFAULT;
-    g_ddr_cfg.timing_mode = TIMING_AUTO;
-    int ret = ops->init(&g_ddr_cfg);
-    if (ret)
-        return ret;
-
-    /* Phase 3: Run training */
-#ifdef CONFIG_DDR_TRAINING
-    ret = ops->train(&g_ddr_cfg);
-    if (ret)
-        return ret;
-#endif
-
     return 0;
-}
-
-/* __weak: platform can override this */
-__attribute__((weak))
-struct ddr_ops *get_ddr_ops(void)
-{
-    return NULL;  /* Must be overridden by platform */
 }

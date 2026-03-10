@@ -1,36 +1,25 @@
-# 知识图谱 - DDR Demo Project
+# Knowledge Map - Dummy Target
 
-## 模块关系图
+## Module Relationship
+
 ```mermaid
 graph TD
-  MAIN[main.c: main()] -->|"calls ops->init()"| INIT[platform_k1.c: k1_ddr_init()]
-  MAIN -->|"calls ops->train()"| TRAIN[platform_k1.c: k1_ddr_train()]
-  MAIN -->|"__weak override"| GETOPS[platform_k1.c: get_ddr_ops()]
-  GETOPS -->|"returns &k1_ops"| OPS["k1_ops{.init, .train}"]
-  OPS -->|".init"| INIT
-  OPS -->|".train"| TRAIN
+    A["main.c<br>Boot entry"] -->|"usb_ops.init()"| B["usb_driver.c<br>USB driver"]
+    B -->|"includes"| C["driver_api.h<br>Interface contract"]
+    A -->|"includes"| C
 ```
 
-## 已确认结论
+## Confirmed Conclusions
 
-### 模块 01: init-flow (analysis/01-init-flow.md)
-- [C1] main() 通过函数指针 ops->init() 调用平台实现（main.c:22）→ 被引用: 模块02
-- [C2] g_ddr_cfg 是全局共享状态，贯穿整个初始化链路（main.c:8）→ 被引用: 模块02, 模块03
-- [C3] CONFIG_DDR_TRAINING 控制 training 阶段是否执行（main.c:28）→ 被引用: 模块03
+### 01-boot-init-flow (analysis/01-boot-init-flow.md)
+- [C1] `main()` calls `usb_ops.init()` via function pointer dispatch, not direct call [main.c:13] → Referenced by: 02-usb-driver
+- [C2] `usb_ops` is declared `extern` in main.c, defined in usb_driver.c:28 with `.init = usb_init_internal` → Referenced by: 02-usb-driver
+- [C3] `legacy_init_do_not_use()` is dead code - declared in header, defined in driver, never called from any live path → Referenced by: none
 
-### 模块 02: platform-ops (analysis/02-platform-ops.md)
-- [C4] get_ddr_ops() 在 main.c:37 为 __weak，被 platform_k1.c:19 覆盖 → 被引用: 无
-- [C5] k1_ops 静态绑定 .init=k1_ddr_init, .train=k1_ddr_train（platform_k1.c:12-14）→ 被引用: 模块03
-- [C6] CONFIG_DDR_HIGH_SPEED 分出两条 PHY 配置路径（platform_k1.c:30-36）→ 被引用: 无
+## Open Questions
+- [ ] What is the full register map? (need 02-usb-driver analysis)
+- [ ] Why is `usb_ops.shutdown` set to NULL? Intentional or incomplete?
 
-### 模块 03: training (analysis/03-training.md)
-- [C7] training 仅在 TIMING_AUTO 模式下执行自动序列（platform_k1.c:46）→ 被引用: 无
-- [C8] training 通过 spin wait 等待硬件完成，无超时保护（platform_k1.c:51-52）→ 被引用: 无
-
-## 开放问题
-- [x] ~~ops->shutdown 未实现（platform_k1.c:15）~~ 确认为 TODO，非阻塞
-
-## 术语表
-- PHY: DDR Physical Layer Interface
-- ops: 函数指针操作表 (struct ddr_ops)
-- __weak: GCC 弱符号属性，允许被同名强符号覆盖
+## Terminology
+- **ops struct**: Function pointer table pattern for dynamic dispatch (common in Linux kernel drivers)
+- **USB_CTRL_REG**: USB controller register, address computed via macro composition
