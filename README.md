@@ -6,11 +6,24 @@ In software development, we use Spec-Driven agents to write code. But in reverse
 
 This framework introduces **"No Evidence, No Claim"** and **anti-Analysis Hypnosis** mechanisms to tackle million-line-scale C/C++ system code analysis.
 
+Looking for code **development** instead of analysis? Check out [agent-TRIO](https://github.com/docularxu/agent-TRIO) - same team structure, but for spec-driven software development. **No Doc, No Code** instead of No Evidence, No Claim.
+
+## Table of Contents
+
+- [Core Design Principles](#-core-design-principles)
+- [The Agent Team](#-the-agent-team)
+- [Quick Start](#-quick-start)
+- [Repository Structure](#-repository-structure)
+- [Experience Accumulation](#-experience-accumulation)
+- [Three-Phase Workflow](#three-phase-workflow)
+- [Origin](#origin)
+- [License](#license)
+
 ## 🌟 Core Design Principles
 
 1. **No Evidence, No Claim**: Every business logic assertion must be accompanied by a precise physical code reference `[file:line]`. No reference, no claim.
 
-2. **Zero-Trust Review**: The Reviewer agent is equipped with CLI tool permissions (`sed`, `grep`) to physically verify code citations. Pure text "reading" does not count as verification.
+2. **Zero-Trust Review**: The Reviewer agent verifies code citations by going back to the source code and checking the actual lines referenced. No claim is accepted at face value.
 
 3. **Progressive Knowledge Graph**: Instead of single-pass large-context reads, the framework uses a shared blackboard (`tasks-backlog` + `knowledge-map`) to progressively piece together the global architecture, module by module.
 
@@ -24,15 +37,42 @@ A "permanent team, rotating projects" approach - the agents persist across proje
 
 - **🔬 Researcher (Code Archaeologist)**: Traces call chains, tracks data flow mutations, reports implicit jumps (`[UNRESOLVED]`). Believes only in what the compiler executes, not what comments say.
 
-- **🔍 Reviewer (Logic Judge)**: Assumes all reports contain hallucinations until physically proven otherwise. Uses reverse verification, shadow tracking, and context toxicity checks to catch errors.
+- **🔍 Reviewer (Logic Judge)**: Assumes all reports contain hallucinations until proven otherwise. Uses reverse verification, shadow tracking, and context toxicity checks to catch errors.
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- [OpenClaw](https://github.com/openclaw/openclaw) installed and running (`openclaw gateway start`)
+- An LLM provider configured (Anthropic, Google, OpenAI, etc.)
+
+There are two ways to deploy:
+
+**Option A: Let your AI agent do it.** Clone this repo, then tell your existing AI agent:
+
+> "Read the README and configs at `~/source-driven-agent-framework/`. Set up the three agents (Jarvis-Arch, Researcher, Reviewer) with their SOUL.md files, configure communication, and verify everything works."
+
+Your agent reads this repo, executes all the steps below, and reports back. You describe the intent, the agent handles the rest. This is how deployment works in the AI agent era.
+
+**Option B: Do it yourself.** The detailed steps below are written so that either an AI agent or a human can follow them. If you prefer hands-on control, or if your agent needs a reference, here they are:
+
 ### 1. Deploy the Prompts
 
-Clone this repo. Copy `agents/` directory and use each `SOUL.md` as the System Prompt for your multi-agent engine (OpenClaw, AutoGen, LangGraph, etc.).
+Clone this repo. Copy each agent's `SOUL.md` into their OpenClaw workspace:
 
-See `configs/openclaw-example.yaml` for an OpenClaw configuration example with tool permissions.
+```bash
+# Create agents
+openclaw agents add jarvis-arch --model <your-model-id>
+openclaw agents add researcher --model <your-model-id>
+openclaw agents add reviewer --model <your-model-id>
+
+# Install SOUL.md
+cp agents/jarvis-arch/SOUL.md ~/.openclaw/agents/jarvis-arch/SOUL.md
+cp agents/researcher/SOUL.md  ~/.openclaw/agents/researcher/SOUL.md
+cp agents/reviewer/SOUL.md    ~/.openclaw/agents/reviewer/SOUL.md
+```
+
+See `configs/openclaw-example.yaml` for a full configuration example with tool permissions.
 
 ### 2. Verify Agent Communication
 
@@ -47,7 +87,7 @@ Expected result:
 - Jarvis-Arch sends a message to Reviewer → Reviewer acknowledges
 - Jarvis-Arch reports back: "All agents online, communication verified."
 
-If any link fails, check your engine's agent-to-agent communication config (see `configs/openclaw-example.yaml`).
+If any link fails, check `subagents.allowAgents` in your OpenClaw config (see `configs/openclaw-example.yaml`).
 
 ### 3. Start Analyzing
 
@@ -129,6 +169,10 @@ source-driven-agent-framework/
 | **1. Reconnaissance** | Analysis target + codebase access | PROJECT.md, tasks-backlog.md, knowledge-map.md (initial), SYMBOL_INDEX.md | Reviewer pass + Owner sign-off |
 | **2. Deep Dive** (per module) | task.md + knowledge-map + source code | analysis/NN-module.md, review.md, knowledge-map (updated) | Reviewer pass (≤3 rounds) |
 | **3. Final Report** | All analysis/*.md + knowledge-map (final) | REPORT.md | Owner sign-off |
+
+## Origin
+
+This framework was designed through a collaboration between a human (20+ years kernel dev) and AI agents. The core insight: **AI analyzing code without evidence constraints produces plausible-sounding hallucinations. Force every claim to carry a `[file:line]` reference, add zero-trust review, and analysis quality transforms.**
 
 ## License
 
