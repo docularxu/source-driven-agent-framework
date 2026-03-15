@@ -164,7 +164,7 @@ source-driven-agent-framework/
 
 ## Three-Phase Workflow
 
-![Three-Phase Analysis Flow](images/phase-diagram.svg)
+![Three-Phase Analysis Flow](https://github.com/user-attachments/assets/dd2fc060-7bdf-4039-897f-0ca1420db382)
 
 | Phase | Input | Output | Gate |
 |-------|-------|--------|------|
