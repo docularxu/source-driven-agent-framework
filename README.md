@@ -16,6 +16,7 @@ Looking for code **development** instead of analysis? Check out [agent-TRIO](htt
 - [Repository Structure](#-repository-structure)
 - [Experience Accumulation](#-experience-accumulation)
 - [Three-Phase Workflow](#three-phase-workflow)
+- [Real-World Example: SpacemiT K1 U-Boot SPL](#real-world-example-spacemit-k1-u-boot-spl)
 - [Origin](#origin)
 - [License](#license)
 
@@ -171,6 +172,15 @@ source-driven-agent-framework/
 | **1. Reconnaissance** | Analysis target + codebase access | PROJECT.md, tasks-backlog.md, knowledge-map.md (initial), SYMBOL_INDEX.md | Reviewer pass + Owner sign-off |
 | **2. Deep Dive** (per module) | task.md + knowledge-map + source code | analysis/NN-module.md, review.md, knowledge-map (updated) | Reviewer pass (≤3 rounds) |
 | **3. Final Report** | All analysis/*.md + knowledge-map (final) | REPORT.md | Owner sign-off |
+
+## Real-World Example: SpacemiT K1 U-Boot SPL
+
+A full live-fire analysis of [SpacemiT K1 U-Boot SPL patchset](https://lore.kernel.org/u-boot/20260210151459.2348758-1-raymondmaoca@gmail.com/) (17 patches, complete SPL bring-up chain).
+
+- 🇨🇳 [K1 SPL 启动实体图](https://docularxu.github.io/source-TRIO/examples/k1-spl-boot-entities-cn.html)
+- 🇺🇸 [K1 SPL Boot Entities](https://docularxu.github.io/source-TRIO/examples/k1-spl-boot-entities-en.html)
+- 🇨🇳 [完整对话记录（带批注）](https://docularxu.github.io/source-TRIO/examples/k1-spl-conversation-cn.html)
+- 🇺🇸 [Full Conversation Log (Annotated)](https://docularxu.github.io/source-TRIO/examples/k1-spl-conversation-en.html)
 
 ## Origin
 
