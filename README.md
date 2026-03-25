@@ -91,6 +91,31 @@ Each agent gets:
 
 See `configs/openclaw-example.yaml` for a full configuration example with model choices and tool permissions.
 
+### Upgrading (Existing Users)
+
+If agents are already deployed and you've pulled a new version of this repo, update the framework files **without losing runtime data** (MEMORY.md, sessions, .blackboard):
+
+```bash
+cd ~/path/to/source-TRIO   # your local clone
+
+# Update shared protocol
+mkdir -p ~/.openclaw/agents/shared/
+cp PROTOCOL.md ~/.openclaw/agents/shared/PROTOCOL.md
+cp guard.sh    ~/.openclaw/agents/shared/guard.sh
+
+# Update per-agent framework files (SOUL.md + AGENTS.md + symlinks)
+for agent in jarvis-arch researcher reviewer; do
+  cp agents/$agent/SOUL.md   ~/.openclaw/agents/$agent/SOUL.md
+  cp agents/$agent/AGENTS.md ~/.openclaw/agents/$agent/AGENTS.md
+  ln -sf ~/.openclaw/agents/shared/PROTOCOL.md ~/.openclaw/agents/$agent/PROTOCOL.md
+  ln -sf ~/.openclaw/agents/shared/guard.sh    ~/.openclaw/agents/$agent/guard.sh
+done
+```
+
+**Overwritten** (framework files): SOUL.md, AGENTS.md, PROTOCOL.md (symlink), guard.sh (symlink)
+
+**Preserved** (runtime data): MEMORY.md, memory/, .blackboard/, sessions/, TOOLS.md, IDENTITY.md
+
 ### 2. Verify Agent Communication
 
 Before starting real work, run a quick smoke test to confirm all three agents can talk to each other:
