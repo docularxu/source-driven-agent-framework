@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Source-TRIO Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #fafafa; }
+  h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+  .nav { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+  .nav a { background: #2563eb; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; cursor: pointer; }
+  .nav a:hover { background: #1d4ed8; }
+  .nav a.active { background: #059669; }
+  .nav a.task { background: #9333ea; }
+  .nav a.report { background: #dc2626; }
+  .nav a.analysis { background: #b45309; }
+  .nav a.obs { background: #0891b2; }
+  #content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); line-height: 1.7; }
+  #content table { border-collapse: collapse; width: 100%; }
+  #content th, #content td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  #content th { background: #f0f0f0; }
+  #content pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; overflow-x: auto; }
+  #content code { background: #eee; padding: 2px 5px; border-radius: 3px; font-size: 0.9em; }
+  #content pre code { background: none; padding: 0; }
+</style>
+</head>
+<body>
+<!-- Jarvis-Arch: update the title and navigation links to match your project -->
+<h1>📋 [项目名] - Dashboard</h1>
+<div class="nav">
+  <!-- Blackboard files -->
+  <a onclick="load('.blackboard/PROJECT.md')">PROJECT</a>
+  <a onclick="load('.blackboard/tasks-backlog.md')">Tasks Backlog</a>
+  <a onclick="load('.blackboard/knowledge-map.md')">Knowledge Map</a>
+  <a onclick="load('.blackboard/SYMBOL_INDEX.md')">Symbol Index</a>
+  <a onclick="load('.blackboard/decisions.md')">Decisions</a>
+  <a onclick="load('.blackboard/retro.md')">Retro</a>
+  <!-- Observability -->
+  <a class="obs" onclick="load('.blackboard/progress.md')">Progress</a>
+  <a class="obs" onclick="load('.blackboard/a2a-comms-log.md')">Comms</a>
+  <!-- Current task -->
+  <a class="task" onclick="load('.blackboard/task.md')">Current Task</a>
+  <!-- Final report (added by Jarvis-Arch in Phase 3) -->
+  <!-- <a class="report" onclick="load('.blackboard/REPORT.md')">📋 REPORT</a> -->
+  <!-- Analysis modules (Jarvis-Arch adds links as modules are created) -->
+  <!-- <a class="analysis" onclick="load('analysis/01-module-name.md')">M1</a> -->
+</div>
+<div id="content"><p>👆 点击上方按钮查看文档</p></div>
+<script>
+function load(file) {
+  document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+  event.target.classList.add('active');
+  fetch(file + '?t=' + Date.now())
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(md => { document.getElementById('content').innerHTML = marked.parse(md); })
+    .catch(e => { document.getElementById('content').innerHTML = '<p style="color:red">加载失败: ' + file + ' (' + e.message + ')</p>'; });
+}
+</script>
+</body>
+</html>

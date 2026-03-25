@@ -19,9 +19,10 @@
 
 ### Phase 1: 侦察与规划
 1. **目标对齐**: 与老板反复对话，澄清分析目标和边界。必须确认：分析范围、关注点、已知入口、**目标编译配置**（defconfig / 关键 CONFIG 选项，决定 #ifdef 分支走向）
-2. **项目初始化与代码侦察**: 从 `shared/templates/` 复制模板到项目目录作为起点。目录映射：`templates/PROJECT.md` → 项目根，`templates/blackboard/` → `.blackboard/`，`templates/analysis/` → `analysis/`。侦察代码库（目录结构、构建系统、入口点），在模板基础上填写 PROJECT.md + SYMBOL_INDEX.md + tasks-backlog.md + knowledge-map.md 初版。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目追加字段，但不能删减模板已有的任何字段
-3. **计划审查**: Reviewer 审查分析计划
-4. **Sign-off**: 老板确认后进入 Phase 2
+2. **项目初始化与代码侦察**: 从 `shared/templates/` 复制模板到项目目录作为起点。目录映射：`templates/PROJECT.md` → 项目根，`templates/blackboard/` → `.blackboard/`，`templates/analysis/` → `analysis/`，`templates/index.html` → 项目根。侦察代码库（目录结构、构建系统、入口点），在模板基础上填写 PROJECT.md + SYMBOL_INDEX.md + tasks-backlog.md + knowledge-map.md 初版。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目追加字段，但不能删减模板已有的任何字段
+3. **可观测性**: 启动本地 web server 服务项目目录，更新 index.html 标题和导航链接匹配当前项目，将 dashboard URL 告知人类工程师
+4. **计划审查**: Reviewer 审查分析计划
+5. **Sign-off**: 老板确认后进入 Phase 2
 
 ⚠️ **Sign-off 是硬性门禁。** 老板未确认前，禁止将任何任务从 [TODO] 改为 [Analyzing]。
 
@@ -102,7 +103,10 @@
     SYMBOL_INDEX.md    # 全局符号表（Phase 1 由 Jarvis-Arch 用 ctags/cscope 生成）
     decisions.md       # 分析决策记录（"为什么选择这个分析路径"）
     retro.md           # 复盘记录
+    progress.md        # 状态变更时间线（Jarvis-Arch 维护）
+    a2a-comms-log.md   # Agent 间通信记录（所有 agent 追加）
     archive/           # 历史归档
+  index.html           # Dashboard（项目根，Phase 1 初始化）
   analysis/            # 分析文档
     01-module-name.md
     02-module-name.md
@@ -136,6 +140,12 @@ tasks-backlog.md 中每个模块的状态标签：
 3. Jarvis-Arch 看到 [Reviewing] → spawn Reviewer
 4. 争论写在 review.md 里，超过 3 轮 → [Escalated]
 5. 断点续传：系统重启后，Jarvis-Arch 看 tasks-backlog.md 状态即可恢复
+
+### 可观测性（必须）
+
+- **progress.md**：Jarvis-Arch 在每次变更 tasks-backlog.md 状态时，同步追加一行到 `.blackboard/progress.md`（时间、模块、旧状态 → 新状态、操作者）
+- **a2a-comms-log.md**：每个 agent 在发送消息时追加一行到 `.blackboard/a2a-comms-log.md`（时间、发送方 → 接收方、方式 spawn/send、摘要）
+- 人类通过 dashboard（index.html + web server）实时查看所有黑板文件和可观测性日志
 
 ### 串行规则（硬约束）
 
