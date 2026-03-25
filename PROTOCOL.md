@@ -127,6 +127,8 @@ tasks-backlog.md 中每个模块的状态标签：
 - ⚠️ `[Needs Re-evaluation]` - 底层结论变更，退回重审（优先级高于新 [TODO]）
 - 🔒 `[Escalated]` - 超过 3 轮未决，老板介入
 
+**[Escalated] 恢复机制**：老板介入后，通过更新 task.md（补充说明、缩小范围）或写 decisions.md（裁决争议点）来提供指导。Jarvis-Arch 收到老板指示后，将状态从 [Escalated] 改回 [Analyzing] 或 [TODO]，流程恢复。老板未明确指示前，[Escalated] 状态不得被任何 agent 修改。
+
 ### 强校验执行闭环
 
 1. Jarvis-Arch 检查 backlog，看到 [TODO] → 改为 [Analyzing]，写 task.md，spawn Researcher
@@ -206,10 +208,12 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 
 ## 9. review.md 格式
 
-按轮次追加，不覆盖历史：
+按轮次追加，不覆盖历史。
+
+**轮次计数器（必须）**：LLM 无状态，无法自行记忆当前是第几轮 review。Reviewer 每次驳回必须在标题中写明显式轮次 `[REJECT, Round X/3]`。Researcher 修正后回复时也必须带轮次号。这是 3 轮熔断机制能被正确执行的前提。
 
 ```
-## Round N (日期时间)
+## Round N (日期时间) [REJECT, Round N/3]
 结论：❌ 打回 / ✅ 通过
 
 ### 代码引用抽查（抽查了 X/Y 条）
@@ -245,6 +249,7 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 - **必须用 CLI 命令验证**（sed/grep），纯文本阅读不算验证
 - **必须独立追踪** ≥1 条调用链，不能只读分析文档打勾
 - **对抗分析催眠**: 不能顺着 Researcher 报告线性阅读，必须逆向验证或影子追踪
+- **#ifdef 强制交叉验证**：遇到 `#ifdef` / `#if defined()` 包裹的代码块时，必须先查 PROJECT.md 中的目标编译配置确认该宏的状态（活跃/非活跃），不可自行推断宏的真假。review.md 中须注明所依据的 CONFIG 状态
 - 宁可升级老板也不放行有"逻辑断层"或"幻觉引用"的报告
 
 ### 证据优先原则
@@ -379,7 +384,7 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 
 **启动时必须读 MEMORY.md** - 每个 agent 在开始任何任务前，必须先读取自己目录下的 MEMORY.md 中的历史教训。这是跨项目沉淀"肌肉记忆"的唯一机制。
 
-**经验 ≠ 事实** - MEMORY.md 记录的是历史教训和模式总结，不是代码事实。当 MEMORY.md 中的经验与当前代码的实际观测矛盾时，**以当前代码事实为准**。Agent 应记录这个矛盾并更新 MEMORY.md，而不是用旧经验否定新证据。
+**经验 ≠ 事实** - MEMORY.md 记录的是历史教训和模式总结，不是代码事实。当 MEMORY.md 中的经验与当前代码的实际观测矛盾时，**以当前代码事实为准**。发现矛盾的 agent 应报告给 Jarvis-Arch，由 **Jarvis-Arch 统一更新 MEMORY.md**（保持单一写原则）。
 
 如果某条经验足够重要需要写入 SOUL.md，向老板提议，由老板审批后修改。
 

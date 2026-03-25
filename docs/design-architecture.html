@@ -539,7 +539,8 @@ sequenceDiagram
     🔍 <code>[Reviewing]</code> - Researcher 已输出分析文档，Reviewer 正在核查<br>
     ✅ <code>[Done]</code> - Reviewer 签署通过，Jarvis-Arch 已更新知识图谱<br>
     ⚠️ <code>[Needs Re-evaluation]</code> - 因依赖的底层模块结论发生改变，触发的退回重审<br>
-    🔒 <code>[Escalated]</code> - 超过 3 轮未决，必须由 Guodong 介入
+    🔒 <code>[Escalated]</code> - 超过 3 轮未决，必须由 Guodong 介入<br><br>
+    <b>[Escalated] 恢复机制：</b>老板介入后，通过更新 task.md（补充说明、缩小范围）或写 decisions.md（裁决争议点）来提供指导。Jarvis-Arch 收到老板指示后，将状态从 [Escalated] 改回 [Analyzing]（需 Researcher 重做）或 [TODO]（需重新派发），流程恢复。老板未明确指示前，[Escalated] 状态不得被任何 agent 修改。
   </div>
 </div>
 
@@ -600,7 +601,8 @@ sequenceDiagram
     - Reviewer <b>不能只读分析文档</b>，必须通过 CLI 命令打开源码逐项核对<br>
     - 每次 review 至少<b>自己独立追一条调用链</b>（从入口追 2-3 层），与 Researcher 的描述对比<br>
     - 如果 Reviewer 的独立追踪与 Researcher 的分析完全一致且没有任何新发现，应怀疑自己是否被催眠了 - 换一条不同的路径再追一次<br>
-    - review.md 必须包含 Reviewer 自己的代码引用和 CLI 验证输出（证明确实打开了源码看）
+    - review.md 必须包含 Reviewer 自己的代码引用和 CLI 验证输出（证明确实打开了源码看）<br>
+    - <b>#ifdef 强制交叉验证</b>：遇到 <code>#ifdef</code> / <code>#if defined()</code> 包裹的代码块时，Reviewer 必须先查 PROJECT.md 中的目标编译配置确认该宏的状态（活跃/非活跃），不可自行推断宏的真假。review.md 中须注明所依据的 CONFIG 状态
   </div>
 </div>
 
@@ -615,8 +617,9 @@ sequenceDiagram
 </div>
 
 <h3>5.5 review.md 格式</h3>
+<p class="note"><b>轮次计数器（必须）：</b>LLM 无状态，无法自行记忆当前是第几轮 review。Reviewer 每次驳回必须在 review.md 标题中写明显式轮次 <code>[REJECT, Round X/3]</code>。Researcher 修正后回复时也必须带轮次号。这是 3 轮熔断机制能被正确执行的前提。</p>
 <div class="file-tree">
-  <span class="comment">## Round 1 (2026-03-10 16:00)</span><br>
+  <span class="comment">## Round 1 (2026-03-10 16:00) [REJECT, Round 1/3]</span><br>
   <span class="comment">结论：❌ 打回</span><br><br>
   <span class="comment">### 代码引用抽查（抽查了 N/M 条）</span><br>
   <span class="comment">- ✅ dram_init() @ common/init/board_init.c:120</span><br>
@@ -725,7 +728,7 @@ sequenceDiagram
     <b>SOUL.md 是只读的</b>：只有 Guodong 能修改。任何 Agent（包括 Jarvis-Arch）禁止修改任何人的 SOUL.md。让 LLM 修改自己的系统提示词是危险的，容易写坏格式或引入偏差。<br><br>
     <b>MEMORY.md 是经验外挂</b>：每次项目复盘产生的教训，由 Jarvis-Arch 写入对应 Agent 目录下的 <code>MEMORY.md</code>。<br><br>
     <b>启动时必须读 MEMORY.md</b>：每个 Agent 在开始任何任务前，必须先读取自己目录下的 <code>MEMORY.md</code> 中的历史教训。<br><br>
-    <b>经验 ≠ 事实</b>：MEMORY.md 记录的是历史教训和模式总结，不是代码事实。当 MEMORY.md 中的经验与当前代码的实际观测矛盾时，<b>以当前代码事实为准</b>。Agent 应记录这个矛盾并更新 MEMORY.md，而不是用旧经验否定新证据。<br><br>
+    <b>经验 ≠ 事实</b>：MEMORY.md 记录的是历史教训和模式总结，不是代码事实。当 MEMORY.md 中的经验与当前代码的实际观测矛盾时，<b>以当前代码事实为准</b>。发现矛盾的 agent 应报告给 Jarvis-Arch，由 <b>Jarvis-Arch 统一更新 MEMORY.md</b>（保持单一写原则）。<br><br>
     如果某条经验足够重要需要写入 SOUL.md，向 Guodong 提议，由他审批后修改。
   </div>
 </div>
