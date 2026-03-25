@@ -1,27 +1,22 @@
 # OpenClaw Agent Configuration Example
 # Source-Driven Code Analysis Multi-Agent Framework
 #
-# Add these entries to your ~/.openclaw/openclaw.json
-# Adjust workspace paths and model choices to match your setup.
-#
-# openclaw.json is JSON5 (trailing commas OK).
+# Add these entries to your ~/.openclaw/openclaw.json (JSON5 format).
+# Adjust model choices to match your provider/budget.
 
 # ─────────────────────────────────────────────
-# 1. Agent definitions (under "agents.list")
+# 1. Agent Definitions (under "agents.list")
 # ─────────────────────────────────────────────
 #
 # {
 #   "agents": {
 #     "list": [
-#       ... your existing agents ...
-#
 #       {
 #         "id": "jarvis-arch",
 #         "name": "Jarvis-Arch",
 #         "workspace": "~/.openclaw/agents/jarvis-arch",
 #         "model": {
-#           "primary": "anthropic/claude-opus-4-6",
-#           "fallbacks": ["anthropic/claude-sonnet-4-5"]
+#           "primary": "anthropic/claude-opus-4-6"
 #         },
 #         "identity": {
 #           "name": "Jarvis-Arch",
@@ -36,8 +31,7 @@
 #         "name": "Researcher",
 #         "workspace": "~/.openclaw/agents/researcher",
 #         "model": {
-#           "primary": "anthropic/claude-opus-4-6",
-#           "fallbacks": ["anthropic/claude-sonnet-4-5"]
+#           "primary": "anthropic/claude-opus-4-6"
 #         },
 #         "identity": {
 #           "name": "Researcher",
@@ -49,8 +43,7 @@
 #         "name": "Reviewer",
 #         "workspace": "~/.openclaw/agents/reviewer",
 #         "model": {
-#           "primary": "anthropic/claude-opus-4-6",
-#           "fallbacks": ["anthropic/claude-sonnet-4-5"]
+#           "primary": "anthropic/claude-opus-4-6"
 #         },
 #         "identity": {
 #           "name": "Reviewer",
@@ -61,96 +54,74 @@
 #   }
 # }
 #
-# KEY: "subagents.allowAgents" on Jarvis-Arch is what lets it spawn
-# Researcher and Reviewer as sub-agents. Without this, Jarvis-Arch
-# can only see itself when calling agents_list.
+# KEY: "subagents.allowAgents" on Jarvis-Arch lets it spawn
+# Researcher and Reviewer as sub-agents. Without this, orchestration
+# won't work.
 
 # ─────────────────────────────────────────────
 # 2. Agent-to-Agent Communication
 # ─────────────────────────────────────────────
 #
-# Enable inter-agent messaging under "tools":
+# The framework uses two communication methods:
 #
-# {
-#   "tools": {
-#     "agentToAgent": {
-#       "enabled": true,
-#       "allow": ["jarvis-arch", "researcher", "reviewer"]
-#     }
-#   }
-# }
+#   a) sessions_spawn - Jarvis-Arch spawns Researcher/Reviewer with a task
+#      Used for: delegating analysis, triggering reviews
+#      Requires: "subagents.allowAgents" on Jarvis-Arch
 #
-# Communication methods (two options):
+#   b) sessions_send  - lightweight message to another agent's session
+#      Used for: notifications (e.g. Researcher → Reviewer "analysis complete")
 #
-#   a) sessions_send  - direct message to another agent's session
-#      Used for: notifications, status updates, lightweight pings
+# Communication flow (per PROTOCOL.md §6):
 #
-#   b) sessions_spawn - spawn another agent as a sub-agent with a task
-#      Used for: delegating analysis work, triggering reviews
-#      Requires: "subagents.allowAgents" on the calling agent (see above)
+#   Jarvis-Arch  → Researcher   (spawn: "分析模块 X，看 task.md")
+#   Researcher   → Reviewer     (send:  "分析完成，请审查")
+#   Reviewer     → Researcher   (send:  "有问题，看 review.md" / "通过 ✅")
+#   Reviewer     → Jarvis-Arch  (send:  "review 通过")
 #
-# Communication flow:
-#   jarvis-arch  → researcher   (spawn: assign analysis task)
-#   jarvis-arch  → reviewer     (spawn: trigger review)
-#   researcher   → reviewer     (send: notify analysis complete)
-#   reviewer     → researcher   (send: review feedback)
-#
-# CLI equivalent:
-#   openclaw agent --agent researcher --message "Analyze module X, see task.md"
+# All substantive data exchange happens via shared files (blackboard),
+# not via message content. Messages are "shoulder taps" only.
 
 # ─────────────────────────────────────────────
-# 3. Tool Permissions (Design Intent)
+# 3. Tool Permissions
 # ─────────────────────────────────────────────
 #
-# By default, OpenClaw agents get standard tool access (read, write, exec).
-# The framework's SOUL.md files enforce behavioral constraints:
+# By default, OpenClaw agents get standard tool access.
+# The framework enforces constraints at two levels:
 #
-# Jarvis-Arch:
-#   - read/write .blackboard/ files (tasks-backlog.md, knowledge-map.md, task.md)
-#   - exec: ctags/cscope for SYMBOL_INDEX.md generation
-#   - sessions_spawn: orchestrate Researcher and Reviewer as sub-agents
-#   - sessions_send: lightweight messaging to other agents
-#   - SOUL.md forbids: deep code analysis (delegate to Researcher)
+#   - SOUL.md (behavioral): tells the agent what it should/shouldn't do
+#   - PROTOCOL.md (protocol): shared workflow rules all agents follow
+#   - tools.allow/deny (hard): engine-level enforcement (optional)
 #
-# Researcher:
-#   - read: source code, blackboard files, knowledge-map.md
-#   - exec: grep, find, cat (read-only commands for code exploration)
-#   - write: analysis/*.md, tasks-backlog.md (status updates only)
-#   - SOUL.md forbids: modifying PROJECT.md, knowledge-map.md, SYMBOL_INDEX.md
+# Jarvis-Arch (Architect/Orchestrator):
+#   NEEDS:  read, write, exec, sessions_spawn, sessions_send
+#   WRITES: PROJECT.md, tasks-backlog.md, knowledge-map.md,
+#           global-map.md, subsystem-maps/*.md, task.md, SYMBOL_INDEX.md,
+#           MEMORY.md (sole writer for all agents' MEMORY.md)
+#   EXEC:   ctags/cscope (SYMBOL_INDEX generation)
+#   FORBIDDEN (by SOUL.md): deep code analysis (delegate to Researcher)
 #
-# Reviewer:
-#   - exec: sed -n, grep (MANDATORY for physical code verification)
-#   - read: analysis docs, source code, task.md
-#   - write: review.md only
-#   - SOUL.md forbids: modifying analysis docs, knowledge-map.md
+# Researcher (Code Archaeologist):
+#   NEEDS:  read, write, exec, sessions_send
+#   READS:  source code, task.md, PROJECT.md, knowledge-map.md,
+#           SYMBOL_INDEX.md, maps specified in task.md
+#   WRITES: analysis/*.md, tasks-backlog.md (status → [Reviewing] only)
+#   EXEC:   grep, find, cat, sed -n (read-only code exploration)
+#   FORBIDDEN (by SOUL.md): modifying PROJECT.md, knowledge-map.md,
+#           SYMBOL_INDEX.md, decisions.md, other agents' files
 #
-# NOTE: If you want hard enforcement (not just SOUL.md behavioral rules),
-# use OpenClaw's tools.profile and tools.allow/deny per agent. Example:
+# Reviewer (Logic Judge):
+#   NEEDS:  read, write, exec, sessions_send
+#   READS:  analysis docs, source code, task.md, PROJECT.md (build config)
+#   WRITES: review.md only
+#   EXEC:   sed -n, grep, cat -n (MANDATORY for physical code verification)
+#   FORBIDDEN (by SOUL.md): modifying analysis docs, knowledge-map.md,
+#           passing reports without CLI verification
+#
+# For hard enforcement, use OpenClaw's per-agent tool config:
 #
 # {
 #   "id": "reviewer",
-#   ...
 #   "tools": {
 #     "allow": ["read", "exec", "write", "sessions_send"]
 #   }
 # }
-
-# ─────────────────────────────────────────────
-# 4. Workspace Layout
-# ─────────────────────────────────────────────
-#
-# Each agent's workspace contains their SOUL.md and MEMORY.md:
-#
-#   ~/.openclaw/agents/jarvis-arch/
-#     ├── SOUL.md        # System prompt (copy from agents/jarvis-arch/SOUL.md)
-#     ├── MEMORY.md      # Cross-project lessons (auto-accumulated)
-#     └── memory/        # Daily logs
-#
-# The project workspace is separate (not inside any agent dir):
-#
-#   ~/projects/<project-name>/
-#     ├── PROJECT.md
-#     ├── .blackboard/
-#     └── analysis/
-#
-# All agents access the same project directory via paths in task.md.
