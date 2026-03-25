@@ -34,6 +34,33 @@ Looking for code **development** instead of analysis? Check out [agent-TRIO](htt
 
 6. **Built-in Observability**: Every state change and agent-to-agent message is logged to physical files (`progress.md`, `a2a-comms-log.md`). A web dashboard (`index.html`) renders all blackboard files in real-time, giving the human engineer full visibility into what the agents are doing, what they've decided, and where things stand - without reading raw logs.
 
+```
+┌─────────────────────────────────────────────────────────┐
+│  📋 K1 U-Boot SPL Analysis - Dashboard                  │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  [PROJECT] [Tasks Backlog] [Knowledge Map] [Symbol Idx] │
+│  [Decisions] [Retro] [Progress] [Comms] [Current Task]  │
+│  [📋 REPORT]  [M1] [M2] [M3] [M4] [M5] [M6] [M7]     │
+│                                                         │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │  ## Tasks Backlog                                   │ │
+│ │                                                     │ │
+│ │  | # | Module          | Status | Depends |        │ │
+│ │  |---|-----------------|--------|---------|        │ │
+│ │  | 1 | board-spl-entry | ✅ Done |   -     |        │ │
+│ │  | 2 | reset-flow      | ✅ Done |  M1     |        │ │
+│ │  | 3 | clock-init      | ✅ Done |  M2     |        │ │
+│ │  | 4 | i2c-driver      | 🔍 Rev |  M3     |        │ │
+│ │  | 5 | tlv-eeprom      | ⏳ TODO |  M4     |        │ │
+│ │                                                     │ │
+│ └─────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+
+  index.html + local web server → all .md files rendered in browser
+  Human reviews PROJECT.md, signs off on task backlog, tracks progress
+```
+
 ## 👥 The Agent Team
 
 A "permanent team, rotating projects" approach - the agents persist across projects, accumulating expertise over time.
