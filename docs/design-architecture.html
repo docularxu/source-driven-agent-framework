@@ -183,7 +183,7 @@ graph TB
 <!-- ==================== 2. 分析驱动流程 ==================== -->
 <h2 id="sec-2">2. 分析驱动流程 (Source-Driven Analysis)</h2>
 
-<h3>2.1 两阶段流程</h3>
+<h3>2.1 三阶段流程</h3>
 
 <div class="decision">
   <div class="decision-title">Phase 1: 侦察与规划 (Reconnaissance)</div>
@@ -376,24 +376,40 @@ graph TD
 <h2 id="sec-3">3. 目录结构</h2>
 
 <div class="file-tree">
+  <span class="comment"># 共享文件（一次性部署，跨项目复用）</span><br><br>
+  <span class="dir">~/.openclaw/agents/shared/</span><br>
+  <div class="indent">
+    <span class="file">PROTOCOL.md</span> <span class="comment"># 流程协议（从 design-architecture.html 提取，agent 运行时的权威流程文档）</span><br>
+    <span class="file">guard.sh</span> <span class="comment"># 状态变更合规检查脚本</span><br>
+  </div>
+  <br>
   <span class="comment"># Agent 的"家" - 不随项目变</span><br><br>
   <span class="dir">~/.openclaw/agents/jarvis-arch/</span><br>
   <div class="indent">
-    <span class="file">SOUL.md</span> <span class="comment"># 通用人格（架构师/协调员的核心准则）</span><br>
+    <span class="file">AGENTS.md</span> <span class="comment"># 启动指令（强制读 PROTOCOL.md）</span><br>
+    <span class="file">SOUL.md</span> <span class="comment"># 身份与性格（不含流程规则，见 §11 D16）</span><br>
+    <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink → shared/PROTOCOL.md</span><br>
+    <span class="file">guard.sh</span> <span class="comment"># → symlink → shared/guard.sh</span><br>
     <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆（跨项目的协调经验、冲突处理教训）</span><br>
     <span class="dir">memory/</span><br>
   </div>
   <br>
   <span class="dir">~/.openclaw/agents/researcher/</span><br>
   <div class="indent">
-    <span class="file">SOUL.md</span> <span class="comment"># 通用人格（代码研究员的核心准则）</span><br>
+    <span class="file">AGENTS.md</span> <span class="comment"># 启动指令（强制读 PROTOCOL.md）</span><br>
+    <span class="file">SOUL.md</span> <span class="comment"># 身份与性格</span><br>
+    <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink → shared/PROTOCOL.md</span><br>
+    <span class="file">guard.sh</span> <span class="comment"># → symlink → shared/guard.sh</span><br>
     <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆（跨项目的通用教训）</span><br>
     <span class="dir">memory/</span><br>
   </div>
   <br>
   <span class="dir">~/.openclaw/agents/reviewer/</span><br>
   <div class="indent">
-    <span class="file">SOUL.md</span> <span class="comment"># 通用人格（审查员的核心准则）</span><br>
+    <span class="file">AGENTS.md</span> <span class="comment"># 启动指令（强制读 PROTOCOL.md）</span><br>
+    <span class="file">SOUL.md</span> <span class="comment"># 身份与性格</span><br>
+    <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink → shared/PROTOCOL.md</span><br>
+    <span class="file">guard.sh</span> <span class="comment"># → symlink → shared/guard.sh</span><br>
     <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆</span><br>
     <span class="dir">memory/</span><br>
   </div>
@@ -904,13 +920,15 @@ K1 U-Boot SPL 实战暴露了一个核心问题：<b>agent 不遵守设计者制
     <span class="file">guard.sh</span> <span class="comment"># 状态变更合规检查脚本</span><br>
   </div>
   <br>
-  <span class="comment"># 各 Agent workspace（三份文件：AGENTS.md + SOUL.md + PROTOCOL.md symlink）</span><br>
+  <span class="comment"># 各 Agent workspace</span><br>
   <span class="dir">~/.openclaw/agents/jarvis-arch/</span><br>
   <div class="indent">
-    <span class="file">AGENTS.md</span> <span class="comment"># 极简启动指令（"读 PROTOCOL.md"）</span><br>
+    <span class="file">AGENTS.md</span> <span class="comment"># 启动指令（强制读 PROTOCOL.md）</span><br>
     <span class="file">SOUL.md</span> <span class="comment"># 身份 + 性格（不含流程规则）</span><br>
     <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink → shared/PROTOCOL.md</span><br>
     <span class="file">guard.sh</span> <span class="comment"># → symlink → shared/guard.sh</span><br>
+    <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆（跨项目经验）</span><br>
+    <span class="dir">memory/</span><br>
   </div>
   <br>
   <span class="dir">~/.openclaw/agents/researcher/</span><br>
@@ -919,6 +937,8 @@ K1 U-Boot SPL 实战暴露了一个核心问题：<b>agent 不遵守设计者制
     <span class="file">SOUL.md</span><br>
     <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink</span><br>
     <span class="file">guard.sh</span> <span class="comment"># → symlink</span><br>
+    <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆</span><br>
+    <span class="dir">memory/</span><br>
   </div>
   <br>
   <span class="dir">~/.openclaw/agents/reviewer/</span><br>
@@ -927,6 +947,8 @@ K1 U-Boot SPL 实战暴露了一个核心问题：<b>agent 不遵守设计者制
     <span class="file">SOUL.md</span><br>
     <span class="file">PROTOCOL.md</span> <span class="comment"># → symlink</span><br>
     <span class="file">guard.sh</span> <span class="comment"># → symlink</span><br>
+    <span class="file">MEMORY.md</span> <span class="comment"># 长期记忆</span><br>
+    <span class="dir">memory/</span><br>
   </div>
   <br>
   <span class="comment"># 项目 workspace（每次新项目由 Jarvis-Arch 创建）</span><br>
