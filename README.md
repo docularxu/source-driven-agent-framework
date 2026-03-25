@@ -121,6 +121,25 @@ Each agent gets:
 
 See `configs/openclaw-example.yaml` for a full configuration example with model choices and tool permissions.
 
+### 1b. Configure Heartbeat (Required for Jarvis-Arch)
+
+Jarvis-Arch uses OpenClaw's heartbeat mechanism to periodically scan for stuck tasks. Add a `heartbeat` block to Jarvis-Arch's entry in `~/.openclaw/openclaw.json`:
+
+```json5
+{
+  "id": "jarvis-arch",
+  // ... other config ...
+  "heartbeat": {
+    "every": "15m",
+    "target": "none"
+  }
+}
+```
+
+⚠️ **Important**: Per-agent heartbeat blocks must be set explicitly in `agents.list[]`. The `agents.defaults.heartbeat` setting alone does **not** enable heartbeat for non-default agents.
+
+Jarvis-Arch will activate the heartbeat during Phase 1 (by writing `HEARTBEAT.md`) and deactivate it when the project ends (by clearing `HEARTBEAT.md`). No need to touch `openclaw.json` between projects.
+
 ### Upgrading (Existing Users)
 
 If agents are already deployed and you've pulled a new version of this repo, update the framework files **without losing runtime data** (MEMORY.md, sessions, .blackboard).
