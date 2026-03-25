@@ -191,7 +191,7 @@ graph TB
   <div class="decision-body">
     <b>Step 1 - 目标对齐</b>：Guodong 提出初始分析目标（可能模糊），Jarvis-Arch 通过直接对话反复追问、澄清模糊地带，双方确认分析范围与边界后再开始侦察。必须确认的项包括：分析范围、关注点、已知入口、<b>目标编译配置</b>（defconfig / 关键 CONFIG 选项，决定 #ifdef 分支走向）。<br>
     <b>Step 2 - 项目初始化与代码侦察</b>：Jarvis-Arch 从 <code>shared/templates/</code> 复制模板到项目目录作为起点。目录映射：<code>templates/PROJECT.md</code> → 项目根，<code>templates/blackboard/</code> → <code>.blackboard/</code>，<code>templates/analysis/</code> → <code>analysis/</code>，<code>templates/index.html</code> → 项目根。然后对代码库做初步侦察（目录结构、构建系统、入口点识别），在模板基础上填写 <b>PROJECT.md</b>（项目概览 + 模块拆分 + 分析计划）+ <b>SYMBOL_INDEX.md</b>（全局符号表）。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目需要追加字段，但不能删减模板已有的任何字段。<br>
-    <b>Step 2b - 可观测性</b>：Jarvis-Arch 启动本地 web server 服务项目目录，更新 <code>index.html</code> 的标题和导航链接匹配当前项目，将 dashboard URL 告知人类工程师。人类通过 dashboard 浏览 PROJECT.md、tasks-backlog.md 等所有黑板文件来 review 和 sign-off。<br>
+    <b>Step 2b - 可观测性</b>：Jarvis-Arch 启动本地 web server 服务项目目录，更新 <code>index.html</code> 的标题和导航链接匹配当前项目，将 dashboard URL 告知人类工程师。人类通过 dashboard 浏览 PROJECT.md、tasks-backlog.md 等所有黑板文件来 review 和 sign-off。同时，Jarvis-Arch 将 <code>shared/templates/heartbeat-project.md</code> 复制到自己的 <code>HEARTBEAT.md</code>，填写当前项目路径，激活 heartbeat 巡检（每 15 分钟检查是否有任务卡住）。<br>
     <b>Step 3 - 计划审查</b>：Reviewer 审查分析计划的合理性（模块边界是否清晰、有无遗漏的子系统）。<br>
     <b>Step 4 - Sign-off</b>：Guodong 确认后进入 Phase 2。<br><br>
     <b>与开发框架的区别</b>：Phase 1 不是写 spec，而是<b>画地图</b> - 搞清楚要分析的领地有多大、从哪里入手。目标对齐是第一步，因为分析方向错了后面全白做。<br><br>
@@ -213,7 +213,7 @@ graph TB
   <div class="decision-title">Phase 3: 整合报告 (Final Report)</div>
   <div class="decision-body">
     全部模块分析完成后，Jarvis-Arch 基于所有分析文档和最终版知识图谱，整合最终报告。<br>
-    Guodong sign-off 后项目结束。
+    Guodong sign-off 后项目结束。Jarvis-Arch 清空自己的 HEARTBEAT.md（只留注释），停止巡检。
   </div>
 </div>
 
@@ -562,7 +562,8 @@ sequenceDiagram
     Agent 间交互对人类必须完全透明。两个必备文件：<br><br>
     <b>progress.md</b>：状态变更时间线。Jarvis-Arch 在每次变更 tasks-backlog.md 状态时，同步追加一行到 progress.md（时间、模块、旧状态 → 新状态、操作者）。<br><br>
     <b>a2a-comms-log.md</b>：Agent 间通信记录。每个 Agent 在发送消息时追加一行（时间、发送方 → 接收方、方式 spawn/send、摘要）。<br><br>
-    <b>index.html + web server</b>：Phase 1 初始化时 Jarvis-Arch 启动本地 web server 服务项目目录，人类通过 dashboard 实时查看所有黑板文件、分析报告和可观测性日志。这是人类 review 和 sign-off 的主要界面。
+    <b>index.html + web server</b>：Phase 1 初始化时 Jarvis-Arch 启动本地 web server 服务项目目录，人类通过 dashboard 实时查看所有黑板文件、分析报告和可观测性日志。这是人类 review 和 sign-off 的主要界面。<br><br>
+    <b>Heartbeat 巡检</b>：Jarvis-Arch 需要配置 OpenClaw heartbeat（建议 15 分钟间隔）。Phase 1 时将 <code>shared/templates/heartbeat-project.md</code> 复制到自己的 HEARTBEAT.md 并填写项目路径，激活巡检。每次 heartbeat 唤醒时扫描 tasks-backlog.md，发现任务超过 15 分钟无更新则重发通知给对应 agent。项目结束时清空 HEARTBEAT.md 停止巡检。
   </div>
 </div>
 

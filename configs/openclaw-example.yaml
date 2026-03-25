@@ -24,6 +24,10 @@
 #         },
 #         "subagents": {
 #           "allowAgents": ["researcher", "reviewer"]
+#         },
+#         "heartbeat": {
+#           "every": "15m",
+#           "target": "none"
 #         }
 #       },
 #       {

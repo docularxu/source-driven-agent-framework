@@ -20,7 +20,7 @@
 ### Phase 1: 侦察与规划
 1. **目标对齐**: 与老板反复对话，澄清分析目标和边界。必须确认：分析范围、关注点、已知入口、**目标编译配置**（defconfig / 关键 CONFIG 选项，决定 #ifdef 分支走向）
 2. **项目初始化与代码侦察**: 从 `shared/templates/` 复制模板到项目目录作为起点。目录映射：`templates/PROJECT.md` → 项目根，`templates/blackboard/` → `.blackboard/`，`templates/analysis/` → `analysis/`，`templates/index.html` → 项目根。侦察代码库（目录结构、构建系统、入口点），在模板基础上填写 PROJECT.md + SYMBOL_INDEX.md + tasks-backlog.md + knowledge-map.md 初版。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目追加字段，但不能删减模板已有的任何字段
-3. **可观测性**: 启动本地 web server 服务项目目录，更新 index.html 标题和导航链接匹配当前项目，将 dashboard URL 告知人类工程师
+3. **可观测性**: 启动本地 web server 服务项目目录，更新 index.html 标题和导航链接匹配当前项目，将 dashboard URL 告知人类工程师。将 `shared/templates/heartbeat-project.md` 复制到自己的 HEARTBEAT.md，填写当前项目路径，激活 heartbeat 巡检
 4. **计划审查**: Reviewer 审查分析计划
 5. **Sign-off**: 老板确认后进入 Phase 2
 
@@ -50,7 +50,7 @@
 
 ### Phase 3: 整合报告
 - Jarvis-Arch 基于所有 analysis/*.md + knowledge-map.md + retro.md 整合 REPORT.md
-- 老板 sign-off 后项目结束
+- 老板 sign-off 后项目结束。Jarvis-Arch 清空 HEARTBEAT.md（只留注释），停止巡检
 
 ### 各阶段输入/输出/完成标志
 
@@ -146,6 +146,7 @@ tasks-backlog.md 中每个模块的状态标签：
 - **progress.md**：Jarvis-Arch 在每次变更 tasks-backlog.md 状态时，同步追加一行到 `.blackboard/progress.md`（时间、模块、旧状态 → 新状态、操作者）
 - **a2a-comms-log.md**：每个 agent 在发送消息时追加一行到 `.blackboard/a2a-comms-log.md`（时间、发送方 → 接收方、方式 spawn/send、摘要）
 - 人类通过 dashboard（index.html + web server）实时查看所有黑板文件和可观测性日志
+- **Heartbeat 巡检**：Jarvis-Arch 每次 heartbeat 唤醒时扫描 tasks-backlog.md，发现任务超过 15 分钟无更新（对比 progress.md 最后记录时间）则重发通知给对应 agent，并在 a2a-comms-log.md 记录重发。项目结束时清空 HEARTBEAT.md 停止巡检
 
 ### 串行规则（硬约束）
 
