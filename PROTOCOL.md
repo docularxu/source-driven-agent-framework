@@ -290,15 +290,6 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 - ...
 ```
 
-### 上下文剪枝 (Context Pruning)
-
-分析大型代码库时，Researcher 频繁读取源码会快速耗尽 Token 预算。Jarvis-Arch 负责上下文管理：
-
-- **task.md 精准聚焦**：每个 task.md 必须明确限定分析范围和入口点，避免 Researcher 发散
-- **knowledge-map.md 只保留核心**：已确认结论只记系统级契约和核心接口，模块内部细节留在 analysis/*.md
-- **Researcher 上下文隔离**：每个 Researcher session 只加载当前模块的 task.md + knowledge-map.md + SYMBOL_INDEX.md，不加载其他模块的 analysis/*.md（除非 task.md 显式指定）
-- **大文件处理**：Researcher 读源码时应按函数/代码块精确定位（`sed -n 'start,endp'`），禁止整文件读取
-
 ## 12. 代码访问策略
 
 代码库可能很大（Linux kernel、U-Boot 等），不 clone 到项目目录或 agent workspace。
@@ -323,7 +314,24 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 2. **审查发现**: 引用错误率、遗漏率、催眠率
 3. **知识图谱修正**: 新模块是否推翻了旧结论？
 
-## 14. 文件权限
+## 14. 大型项目扩展 (Scaling)
+
+以下机制在中小型项目中不是必须的，但在分析 Linux Kernel、U-Boot 等巨型代码库时至关重要。
+
+### 分级地图 (Tiered Knowledge Map)
+
+当项目极大时，单一 knowledge-map.md 会膨胀导致 Token 爆炸。扩展方案：精简 `global-map.md`（只记子系统级调用）+ `.blackboard/subsystem-maps/` 按业务域拆分。V1.0 暂不实现。
+
+### 上下文剪枝 (Context Pruning)
+
+分析大型代码库时，Researcher 频繁读取源码会快速耗尽 Token 预算。Jarvis-Arch 负责上下文管理：
+
+- **task.md 精准聚焦**：每个 task.md 必须明确限定分析范围和入口点，避免 Researcher 发散
+- **knowledge-map.md 只保留核心**：已确认结论只记系统级契约和核心接口，模块内部细节留在 analysis/*.md
+- **Researcher 上下文隔离**：每个 Researcher session 只加载当前模块的 task.md + knowledge-map.md + SYMBOL_INDEX.md，不加载其他模块的 analysis/*.md（除非 task.md 显式指定）
+- **大文件处理**：Researcher 读源码时应按函数/代码块精确定位（`sed -n 'start,endp'`），禁止整文件读取
+
+## 15. 文件权限
 
 | 文件 | Jarvis-Arch | Researcher | Reviewer |
 |------|------------|-----------|---------|
@@ -338,7 +346,7 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 | retro.md | 读写 | 只读 | 只读 |
 | SOUL.md | 只读 | 只读 | 只读 |
 
-## 15. MEMORY.md 与经验传承
+## 16. MEMORY.md 与经验传承
 
 **SOUL.md 是只读的** - 定义角色身份，只有老板能修改。任何 agent 禁止修改任何人的 SOUL.md。
 
@@ -348,7 +356,7 @@ Researcher 输出的分析文档必须包含以下结构（缺一不可）：
 
 如果某条经验足够重要需要写入 SOUL.md，向老板提议，由老板审批后修改。
 
-## 16. 禁止事项（全员）
+## 17. 禁止事项（全员）
 
 - 禁止修改任何人的 SOUL.md（只有老板能改）
 - 禁止修改 PROTOCOL.md

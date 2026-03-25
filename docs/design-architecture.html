@@ -101,6 +101,7 @@
     <a href="#sec-6">6. 代码访问策略</a>
     <a href="#sec-7">7. 知识图谱维护</a>
     <a href="#sec-8">8. 复盘与进化</a>
+    <a href="#sec-8b">8b. 大型项目扩展</a>
     <a href="#sec-9">9. 部署与运转</a>
     <a href="#sec-10">10. 设计决策汇总</a>
     <a href="#sec-11">11. 流程协议分层</a>
@@ -474,21 +475,7 @@ graph TD
     - <b>开放问题</b>：跨模块的未解之谜、需要后续模块分析才能回答的问题<br>
     - <b>术语表</b>：项目特有的缩写、命名约定<br><br>
     Jarvis-Arch 在每个模块分析通过后更新知识图谱。<br>
-    Researcher 在开始新模块分析前必须先读知识图谱，获取前序模块的上下文。<br><br>
-    <b>⚠️ 大型项目扩展：分级地图</b><br>
-    当项目极大（如 Linux Kernel 成百上千个驱动）时，单一 knowledge-map.md 会膨胀到十几万字，导致 Token 爆炸和 Agent 抓错重点。<br>
-    扩展方案：维持一个极其精简的 <code>global-map.md</code>（只记录子系统级别的调用），在 <code>.blackboard/subsystem-maps/</code> 下按业务域拆分（如 <code>usb-map.md</code>、<code>memory-map.md</code>）。V1.0 暂不实现，留作未来扩展。
-  </div>
-</div>
-
-<div class="decision">
-  <div class="decision-title">上下文剪枝 (Context Pruning)</div>
-  <div class="decision-body">
-    分析大型代码库时，Researcher 频繁读取源码会快速耗尽 Token 预算。Jarvis-Arch 负责上下文管理：<br><br>
-    - <b>task.md 精准聚焦</b>：每个 task.md 必须明确限定分析范围和入口点，避免 Researcher 发散<br>
-    - <b>knowledge-map.md 只保留核心</b>：已确认结论只记系统级契约和核心接口，模块内部细节留在 analysis/*.md<br>
-    - <b>Researcher 上下文隔离</b>：每个 Researcher session 只加载当前模块的 task.md + knowledge-map.md + SYMBOL_INDEX.md，不加载其他模块的 analysis/*.md（除非 task.md 显式指定）<br>
-    - <b>大文件处理</b>：Researcher 读源码时应按函数/代码块精确定位（<code>sed -n 'start,endp'</code>），禁止整文件读取
+    Researcher 在开始新模块分析前必须先读知识图谱，获取前序模块的上下文。
   </div>
 </div>
 
@@ -727,6 +714,30 @@ sequenceDiagram
     <b>MEMORY.md 是经验外挂</b>：每次项目复盘产生的教训，由 Jarvis-Arch 写入对应 Agent 目录下的 <code>MEMORY.md</code>。<br><br>
     <b>启动时必须读 MEMORY.md</b>：每个 Agent 在开始任何任务前，必须先读取自己目录下的 <code>MEMORY.md</code> 中的历史教训。<br><br>
     如果某条经验足够重要需要写入 SOUL.md，向 Guodong 提议，由他审批后修改。
+  </div>
+</div>
+
+<!-- ==================== 8b. 大型项目扩展 ==================== -->
+<h2 id="sec-8b">8b. 大型项目扩展 (Scaling)</h2>
+
+<p class="note">以下机制在中小型项目中不是必须的，但在分析 Linux Kernel、U-Boot 等巨型代码库时至关重要。</p>
+
+<div class="decision">
+  <div class="decision-title">分级地图 (Tiered Knowledge Map)</div>
+  <div class="decision-body">
+    当项目极大（如 Linux Kernel 成百上千个驱动）时，单一 knowledge-map.md 会膨胀到十几万字，导致 Token 爆炸和 Agent 抓错重点。<br><br>
+    扩展方案：维持一个极其精简的 <code>global-map.md</code>（只记录子系统级别的调用），在 <code>.blackboard/subsystem-maps/</code> 下按业务域拆分（如 <code>usb-map.md</code>、<code>memory-map.md</code>）。V1.0 暂不实现，留作未来扩展。
+  </div>
+</div>
+
+<div class="decision">
+  <div class="decision-title">上下文剪枝 (Context Pruning)</div>
+  <div class="decision-body">
+    分析大型代码库时，Researcher 频繁读取源码会快速耗尽 Token 预算。Jarvis-Arch 负责上下文管理：<br><br>
+    - <b>task.md 精准聚焦</b>：每个 task.md 必须明确限定分析范围和入口点，避免 Researcher 发散<br>
+    - <b>knowledge-map.md 只保留核心</b>：已确认结论只记系统级契约和核心接口，模块内部细节留在 analysis/*.md<br>
+    - <b>Researcher 上下文隔离</b>：每个 Researcher session 只加载当前模块的 task.md + knowledge-map.md + SYMBOL_INDEX.md，不加载其他模块的 analysis/*.md（除非 task.md 显式指定）<br>
+    - <b>大文件处理</b>：Researcher 读源码时应按函数/代码块精确定位（<code>sed -n 'start,endp'</code>），禁止整文件读取
   </div>
 </div>
 
