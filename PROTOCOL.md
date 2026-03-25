@@ -19,7 +19,7 @@
 
 ### Phase 1: 侦察与规划
 1. **目标对齐**: 与老板反复对话，澄清分析目标和边界。必须确认：分析范围、关注点、已知入口、**目标编译配置**（defconfig / 关键 CONFIG 选项，决定 #ifdef 分支走向）
-2. **项目初始化与代码侦察**: 从 `shared/templates/` 复制模板到项目 `.blackboard/` 作为起点。侦察代码库（目录结构、构建系统、入口点），在模板基础上填写 PROJECT.md + SYMBOL_INDEX.md + tasks-backlog.md + knowledge-map.md 初版。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目追加字段，但不能删减模板已有的任何字段
+2. **项目初始化与代码侦察**: 从 `shared/templates/` 复制模板到项目目录作为起点（PROJECT.md 在项目根，blackboard/ 和 analysis/ 作为子目录）。侦察代码库（目录结构、构建系统、入口点），在模板基础上填写 PROJECT.md + SYMBOL_INDEX.md + tasks-backlog.md + knowledge-map.md 初版。模板中已有的字段全部保留并填写，Jarvis-Arch 可根据项目追加字段，但不能删减模板已有的任何字段
 3. **计划审查**: Reviewer 审查分析计划
 4. **Sign-off**: 老板确认后进入 Phase 2
 
