@@ -93,7 +93,13 @@ See `configs/openclaw-example.yaml` for a full configuration example with model 
 
 ### Upgrading (Existing Users)
 
-If agents are already deployed and you've pulled a new version of this repo, update the framework files **without losing runtime data** (MEMORY.md, sessions, .blackboard):
+If agents are already deployed and you've pulled a new version of this repo, update the framework files **without losing runtime data** (MEMORY.md, sessions, .blackboard).
+
+**Option A: Let your AI agent do it.**
+
+> "Read the Upgrading section in `~/source-TRIO/README.md` and execute it. Update all three agents' framework files without touching runtime data."
+
+**Option B: Do it yourself.**
 
 ```bash
 cd ~/path/to/source-TRIO   # your local clone
