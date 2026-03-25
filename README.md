@@ -82,7 +82,7 @@ There are two ways to deploy:
 
 **Option A: Let your AI agent do it.** Clone this repo, then tell your existing AI agent:
 
-> "Read the README at `~/source-TRIO/`. Set up the three agents (Jarvis-Arch, Researcher, Reviewer) with their SOUL.md, AGENTS.md, shared PROTOCOL.md, and guard.sh. Configure communication and verify everything works."
+> "Read the README at `~/source-TRIO/`. Set up the three agents (Jarvis-Arch, Researcher, Reviewer) with their SOUL.md, AGENTS.md, shared PROTOCOL.md, and guard.sh. Enable heartbeat for Jarvis-Arch in openclaw.json (disabled by default). Configure communication and verify everything works."
 
 Your agent reads this repo, executes all the steps below, and reports back. You describe the intent, the agent handles the rest. This is how deployment works in the AI agent era.
 
