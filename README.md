@@ -138,7 +138,16 @@ Jarvis-Arch uses OpenClaw's heartbeat mechanism to periodically scan for stuck t
 
 ⚠️ **Important**: Per-agent heartbeat blocks must be set explicitly in `agents.list[]`. The `agents.defaults.heartbeat` setting alone does **not** enable heartbeat for non-default agents.
 
-Jarvis-Arch will activate the heartbeat during Phase 1 (by writing `HEARTBEAT.md`) and deactivate it when the project ends (by clearing `HEARTBEAT.md`). No need to touch `openclaw.json` between projects.
+Jarvis-Arch will activate the heartbeat during Phase 1 (by writing `HEARTBEAT.md` from `templates/heartbeat-project.md`) and deactivate it when the project ends (by clearing `HEARTBEAT.md`). No need to touch `openclaw.json` between projects.
+
+**Verify heartbeat is working:**
+
+```bash
+openclaw gateway restart
+openclaw status
+```
+
+You should see `jarvis-arch` with its heartbeat interval (e.g., `15m`) in the status output.
 
 ### Upgrading (Existing Users)
 
